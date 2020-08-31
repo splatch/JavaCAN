@@ -36,9 +36,9 @@ import static java.time.temporal.ChronoUnit.MICROS;
 /**
  * This class provides the standard socket options supported by CAN sockets.
  */
-public class CanSocketOptions {
+public class RawCanSocketOptions {
 
-    private CanSocketOptions() {}
+    private RawCanSocketOptions() {}
 
     /**
      * Option to configure whether to join filters.
@@ -201,8 +201,7 @@ public class CanSocketOptions {
 
         @Override
         public Integer get(int sock) throws IOException {
-            final int size = SocketCAN.getReceiveBufferSize(sock);
-            return size;
+            return SocketCAN.getReceiveBufferSize(sock);
         }
     });
 }

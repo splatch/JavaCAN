@@ -30,7 +30,7 @@ import tel.schich.javacan.option.CanSocketOption;
 
 /**
  * This class provides ISOTP specific socket options supported by CAN sockets. This class is similar to
- * {@link tel.schich.javacan.CanSocketOptions}.
+ * {@link RawCanSocketOptions}.
  */
 public class IsotpCanSocketOptions {
 
