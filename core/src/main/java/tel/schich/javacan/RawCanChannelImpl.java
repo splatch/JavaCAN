@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NotYetBoundException;
 
+import tel.schich.javacan.platform.linux.LinuxNativeOperationException;
 import tel.schich.javacan.platform.linux.LinuxNetworkDevice;
 
 /**
@@ -44,7 +45,11 @@ public class RawCanChannelImpl extends RawCanChannel {
         if (!(device instanceof LinuxNetworkDevice)) {
             throw new IllegalArgumentException("Unsupported network device given!");
         }
-        SocketCAN.bindSocket(getSocket(), ((LinuxNetworkDevice) device).getIndex(), 0, 0);
+        try {
+            SocketCAN.bindSocket(getSocket(), ((LinuxNetworkDevice) device).getIndex(), 0, 0);
+        } catch (LinuxNativeOperationException e) {
+            throw checkForClosedChannel(e);
+        }
         this.device = device;
         return this;
     }

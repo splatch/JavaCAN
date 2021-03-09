@@ -46,7 +46,7 @@ class SocketCAN {
 
     public static native int setBlockingMode(int sock, boolean block) throws LinuxNativeOperationException;
 
-    public static native int getBlockingMode(int sock);
+    public static native int getBlockingMode(int sock) throws LinuxNativeOperationException;
 
     public static native int setReadTimeout(int sock, long seconds, long nanos) throws LinuxNativeOperationException;
 
@@ -66,7 +66,6 @@ class SocketCAN {
 
     public static native int setFilters(int sock, ByteBuffer data) throws LinuxNativeOperationException;
 
-    @Deprecated
     public static native ByteBuffer getFilters(int sock) throws LinuxNativeOperationException;
 
     public static native int setLoopback(int sock, boolean enable) throws LinuxNativeOperationException;

@@ -23,7 +23,7 @@
 #include "common.h"
 #include <errno.h>
 #include <fcntl.h>
-#include <jni-c-to-java.h>
+#include <javacan-core/jni-c-to-java.h>
 #include <jni.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -31,7 +31,6 @@
 #include <string.h>
 #include <poll.h>
 #include <sys/socket.h>
-#include <unistd.h>
 
 inline int create_can_raw_socket() {
     return socket(PF_CAN, SOCK_RAW, CAN_RAW);

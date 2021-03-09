@@ -106,6 +106,9 @@ public class RawCanSocketOptions {
 
     /**
      * Option to configure the error filter.
+     *
+     * @see <a href="https://man7.org/linux/man-pages/man2/setsockopt.2.html">setsockopt man page</a>
+     * @see <a href="https://man7.org/linux/man-pages/man2/getsockopt.2.html">getsockopt man page</a>
      */
     public static final SocketOption<Integer> ERR_FILTER = new CanSocketOption<>("ERR_FILTER", Integer.class, new LinuxSocketOptionHandler<Integer>() {
         @Override
@@ -115,13 +118,15 @@ public class RawCanSocketOptions {
 
         @Override
         public Integer get(int sock) throws IOException {
-            final int mask = SocketCAN.getErrorFilter(sock);
-            return mask;
+            return SocketCAN.getErrorFilter(sock);
         }
     });
 
     /**
      * Option to configure the CAN filters.
+     *
+     * @see <a href="https://man7.org/linux/man-pages/man2/setsockopt.2.html">setsockopt man page</a>
+     * @see <a href="https://man7.org/linux/man-pages/man2/getsockopt.2.html">getsockopt man page</a>
      */
     public static final SocketOption<CanFilter[]> FILTER = new CanSocketOption<>("FILTER", CanFilter[].class, new LinuxSocketOptionHandler<CanFilter[]>() {
         @Override
@@ -135,9 +140,6 @@ public class RawCanSocketOptions {
             SocketCAN.setFilters(sock, filterData);
         }
 
-        /**
-         * @deprecated The underlying native implementation might consume **A LOT** of memory due to a ill-designed kernel API
-         */
         @Override
         public CanFilter[] get(int sock) throws IOException {
             ByteBuffer filterData = SocketCAN.getFilters(sock);
@@ -157,6 +159,9 @@ public class RawCanSocketOptions {
 
     /**
      * Option to configure the send timeout.
+     *
+     * @see <a href="https://man7.org/linux/man-pages/man2/setsockopt.2.html">setsockopt man page</a>
+     * @see <a href="https://man7.org/linux/man-pages/man2/getsockopt.2.html">getsockopt man page</a>
      */
     public static final SocketOption<Duration> SO_SNDTIMEO = new CanSocketOption<>("SO_SNDTIMEO", Duration.class, new LinuxSocketOptionHandler<Duration>() {
         @Override
@@ -173,6 +178,9 @@ public class RawCanSocketOptions {
 
     /**
      * Option to configure the receive timeout.
+     *
+     * @see <a href="https://man7.org/linux/man-pages/man2/setsockopt.2.html">setsockopt man page</a>
+     * @see <a href="https://man7.org/linux/man-pages/man2/getsockopt.2.html">getsockopt man page</a>
      */
     public static final SocketOption<Duration> SO_RCVTIMEO = new CanSocketOption<>("SO_RCVTIMEO", Duration.class, new LinuxSocketOptionHandler<Duration>() {
         @Override
@@ -189,6 +197,9 @@ public class RawCanSocketOptions {
 
     /**
      * Option to configure the size of the receive buffer.
+     *
+     * @see <a href="https://man7.org/linux/man-pages/man2/setsockopt.2.html">setsockopt man page</a>
+     * @see <a href="https://man7.org/linux/man-pages/man2/getsockopt.2.html">getsockopt man page</a>
      */
     public static final SocketOption<Integer> SO_RCVBUF = new CanSocketOption<>("SO_RCVBUF", Integer.class, new LinuxSocketOptionHandler<Integer>() {
         @Override

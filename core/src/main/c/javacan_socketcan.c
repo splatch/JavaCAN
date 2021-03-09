@@ -21,9 +21,8 @@
  * THE SOFTWARE.
  */
 #include "common.h"
-#include <jni-c-to-java.h>
+#include <javacan-core/jni-c-to-java.h>
 #include <jni.h>
-#include <limits.h>
 #include <linux/can.h>
 #include <linux/can/isotp.h>
 #include <linux/can/raw.h>
@@ -32,6 +31,9 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <errno.h>
+
+#define GET_FILTERS_DEFAULT_AMOUNT 10
 
 JNIEXPORT jint JNICALL Java_tel_schich_javacan_SocketCAN_createRawSocket(JNIEnv *env, jclass class) {
     jint fd = create_can_raw_socket();
@@ -173,12 +175,7 @@ JNIEXPORT jint JNICALL Java_tel_schich_javacan_SocketCAN_setFilters(JNIEnv *env,
 }
 
 JNIEXPORT jobject JNICALL Java_tel_schich_javacan_SocketCAN_getFilters(JNIEnv *env, jclass class, jint sock) {
-    // assign the signed integer max value to an unsigned integer, socketcan's getsockopt implementation uses int's
-    // instead of uint's and resets the size to the actual size only if the given size is larger.
-    socklen_t size = INT_MAX;
-    // TODO this is a horrible idea, but it seems to be the only way to get all filters without knowing how many there are
-    // see: https://github.com/torvalds/linux/blob/master/net/can/raw.c#L669-L683
-    // surprisingly this does not increase the system memory usage given that this should be a significant chunk by numbers
+    socklen_t size = sizeof(struct can_filter) * GET_FILTERS_DEFAULT_AMOUNT;
     void* filters = malloc(size);
     if (filters == NULL) {
         throw_native_exception(env, "Unable to allocate memory");
@@ -186,20 +183,29 @@ JNIEXPORT jobject JNICALL Java_tel_schich_javacan_SocketCAN_getFilters(JNIEnv *e
     }
 
     int result = getsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, filters, &size);
-    if (result == -1) {
-        throw_native_exception(env, "Unable to get the filters");
-        return NULL;
+    if (result) {
+        if (errno == ERANGE) {
+            void* reallocated = realloc(filters, size);
+            if (reallocated == NULL) {
+                throw_native_exception(env, "Unable to allocate the correct amount of memory");
+                free(filters);
+                return NULL;
+            } else {
+                filters = reallocated;
+            }
+            if (getsockopt(sock, SOL_CAN_RAW, CAN_RAW_FILTER, filters, &size)) {
+                throw_native_exception(env, "Unable to get the filters with corrected size");
+                free(filters);
+                return NULL;
+            }
+        } else {
+            throw_native_exception(env, "Unable to get the filters");
+            free(filters);
+            return NULL;
+        }
     }
 
-    void* filters_out = malloc(size);
-    if (filters_out == NULL) {
-        throw_native_exception(env, "Unable to allocate memory");
-        return NULL;
-    }
-
-    memcpy(filters_out, filters, size);
-    free(filters);
-    return (*env)->NewDirectByteBuffer(env, filters_out, size);
+    return (*env)->NewDirectByteBuffer(env, filters, size);
 }
 
 JNIEXPORT jint JNICALL Java_tel_schich_javacan_SocketCAN_setLoopback(JNIEnv *env, jclass class, jint sock, jboolean enable) {
